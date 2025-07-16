@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,13 +12,15 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import { format } from "date-fns";
+import type { BookingFormType } from "@/types/types";
+import { postData } from "@/api/API";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 
 
 export default function BookingForm() {
     // State for each field
-    const [date, setDate] = useState<Date | null>(new Date());
+    const [date, setDate] = useState<Date | undefined>(new Date());
     const [department, setDepartment] = useState("");
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
@@ -25,22 +28,39 @@ export default function BookingForm() {
     const [transactionId, setTransactionId] = useState("");
     const [opdTimings, setOpdTimings] = useState("");
 
-    return (
-        
+    // Function to reset all form fields
+    const reset = () => {
+        setDate(new Date());
+        setDepartment("");
+        setName("");
+        setPhone("");
+        setAge("");
+        setTransactionId("");
+        setOpdTimings("");
+    };
+
+    // Handler for form submission
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+        if (!date) {
+            toast.error("Please select a valid date.");
+            return;
+        }
+        const data: BookingFormType = { date: date as Date, department, name, phone, age, transactionId, opdTimings };
+        try {
             const status = await sendBookingFormData(data);
             if (status === 200) {
                 toast.success("You will get your confirmation call soon!!");
                 reset();
-            }
-            else {
+            } else {
                 toast.error("Internal Server Error");
                 reset();
             }
-        
+        } catch {
+            toast.error("Internal Server Error");
             reset();
         }
     };
-
 
     // Function to send Form data to Backend Server
     const sendBookingFormData = async (data: BookingFormType) => {
@@ -53,8 +73,7 @@ export default function BookingForm() {
 
     return (
         <form
-            action="https://formsubmit.co/neuroflare@gmail.com"
-            method="POST"
+            onSubmit={handleSubmit}
             className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 bg-white "
         >
             {/* Calendar Section */}
