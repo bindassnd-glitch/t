@@ -26,7 +26,7 @@ export default function BookingForm() {
     const [opdTimings, setOpdTimings] = useState("");
 
     return (
-        try {
+        
             const status = await sendBookingFormData(data);
             if (status === 200) {
                 toast.success("You will get your confirmation call soon!!");
@@ -36,8 +36,7 @@ export default function BookingForm() {
                 toast.error("Internal Server Error");
                 reset();
             }
-        } catch {
-            toast.error("Internal Server Error");
+        
             reset();
         }
     };
